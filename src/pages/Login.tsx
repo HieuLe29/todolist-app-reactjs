@@ -1,80 +1,47 @@
-import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../components/context/AuthContext';
 
-interface User {
-  email: string;
-  password: string;
-}
- 
-const Login = () => {
-  const [formData, setFormData] = useState<User>({
-    email: '',
-    password: '',
-  });
-  const [formError, setFormError] = useState<User>({
-    email: '',
-    password: '',
-  });
-  const [loading, setLoading] = useState(false);
-
+export const Login: React.FC = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({...prev, [e.target.name]: e.target.value}));
-  }
-
-  const handleSubmit = () => {
-    if (formData.email === "hieu@gmail.com" && formData.password === "123456") {
-      navigate('/');
-    } else { 
-      alert("Invalid email or password");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = login(username, password);
+    if (success) {
+      navigate('/todo');
+    } else {
+      setError('Invalid username or password');
     }
-  }
+  };
 
   return (
-    <div className="form-container">
-      <form className="inner-container" onSubmit={handleSubmit}>
-        <h2 className="form-title">Login Form</h2>
-        <div className="form-group">
-          <label>Email</label>
-          <input 
-            className="form-control"
-            type="text" 
-            name="email"
-            placeholder="Enter Email"
-            value={formData.email}
-            onChange={handleChange}
-            />
-            {formError.email && <p className="error">{formError.email}</p>}
-        </div>
-       
-       <div className="form-group">
-        <label>Password</label>
-        <input 
-          className="form-control"
-          type="password" 
-          name="password"
-          placeholder="Enter Password"
-          value={formData.password}
-          onChange={handleChange}
-          />
-          {formError.password && <p className="error">{formError.password}</p>}
-       </div>
-
-        <div className="form-group">
+    <div className="login-container">
+      <h2>Login</h2>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username:</label>
           <input
-            className="button"
-            type="submit"
-            value={`${loading ? "Loging..." : "Login"}`}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
         </div>
-
-        <Link className="forgot-password" to="/forgot-password">
-          Forgot Password
-        </Link>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            // value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit">Login</button>
       </form>
     </div>
   );
-}
-
-export default Login;
+};
